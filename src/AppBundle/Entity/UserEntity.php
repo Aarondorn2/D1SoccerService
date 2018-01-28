@@ -12,20 +12,11 @@ use AppBundle\Entity\UserPrefecEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="users")
+ * @ORM\Table(name="users",indexes={@ORM\Index(name="indx_email", columns={"email"})})
  * @UniqueEntity("email", message="This email has already been registered.")
  */
 class UserEntity implements AdvancedUserInterface, \Serializable
 {
-
-    //CONSTRUCTOR
-    public function _construct() {
-        $this->isActive = true;
-        $this->role = "ROLE_USER";
-        $this->transactions = new ArrayCollection();
-    }
-
-
 
     //FIELDS
     /**
@@ -99,7 +90,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="UserSeasonEntity", mappedBy="user")
      */
     protected $seasons;
-
 
 
 
