@@ -15,7 +15,10 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
-composer.lock
 phpunit.xml.dist
 /tests/
 /.idea/
+/src/AppBundle/Service/d1soccer-dev-key.json
+/src/AppBundle/Service/d1soccer-test-key.json
+/src/AppBundle/Service/d1soccer-stg-key.json
+/src/AppBundle/Service/d1soccer-prod-key.json
