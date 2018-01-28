@@ -15,3 +15,7 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+composer.lock
+phpunit.xml.dist
+/tests/
+/.idea/
