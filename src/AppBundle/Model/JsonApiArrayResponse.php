@@ -9,14 +9,16 @@
 namespace AppBundle\Model;
 
 
-class JsonApiResponse
+class JsonApiArrayResponse
 {
 
     function __construct($response, $type) {
-        $this->data = new JsonApiItem($response, $type);
+        foreach ($response as $model) {
+            array_push($this->data, new JsonApiItem($model, $type));
+        }
     }
 
-    protected $data = null;
+    protected $data = array();
 
     /**
      * @return null

@@ -9,11 +9,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\UserEntity;
+use AppBundle\Model\JsonApiArrayResponse;
 use AppBundle\Model\JsonApiResponse;
+use AppBundle\Model\ResponseUser;
 use AppBundle\Model\UserType;
 use AppBundle\Service\FirebaseService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Utility\EmberDate;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -24,10 +25,9 @@ use AppBundle\Service\FirebaseService2;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 
-//TODO if admin, allow look any email
+//TODO admin requests?
 class UserController extends FOSRestController
 {
-
     private $firebaseService;
 
     public function __construct(ContainerInterface $container, FirebaseService $firebaseService)
@@ -39,14 +39,20 @@ class UserController extends FOSRestController
     /**
      * @Rest\Get("/user")
      */
-    public function getUsers()
+    public function getUsers(Request $request)
     {
+        if(!$this->firebaseService->isAuthorized($request->headers->get('x-token'), UserType::$USER_TYPE_ADMIN)) {
+            return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
+        }
+
         $users = $this->getDoctrine()->getRepository('AppBundle:UserEntity')->findAll();
         if ($users === null) {
             return new View("there are no users", Response::HTTP_NOT_FOUND);
         }
-        return $users;
+        return new JsonApiArrayResponse($users, 'users');
     }
+
+
     /**
      * @Rest\Get("/users")
      * @Rest\QueryParam(name="equalTo")
@@ -60,7 +66,7 @@ class UserController extends FOSRestController
 
         if ($paramFetcher->get('orderBy') === "email") {
             if ($authUser->getEmail() == $paramFetcher->get('equalTo')) {
-                $users[] = $authUser;
+                $users[] = new ResponseUser($authUser);
             } else { //TODO if admin, allow look any email
 
 //                $users = $this->getDoctrine()->getRepository('AppBundle:UserEntity')->findBy(array('email' => $paramFetcher->get('equalTo')));
@@ -68,24 +74,69 @@ class UserController extends FOSRestController
 
         }
 
-        if (empty($users)) {
-            return new View("unable to find user", Response::HTTP_NOT_FOUND);
-        }
-
-        return new JsonApiResponse($users, 'users');
+        return new JsonApiArrayResponse($users, 'users');
     }
 
     /**
      * @Rest\Get("/user/{id}")
      */
-    public function getUserById($id)
+    public function getUserById($id, Request $request)
     {
-        $user = $this->getDoctrine()->getRepository('AppBundle:UserEntity')->find($id);
-        if ($user === null) {
+        $authUser = $this->firebaseService->getAuthorizedUser($request->headers->get('x-token'));
+
+        $user = null;
+
+        if ($authUser->getId() == $id) {
+            $user = $authUser;
+        } else { //TODO if admin, allow look any id
+        }
+
+        if (is_null($user)) {
             return new View("user not found", Response::HTTP_NOT_FOUND);
         }
-        return $user;
+        return new JsonApiResponse($user, 'user');;
     }
 
 
+    /**
+     * @Rest\Post("/users")
+     */
+    public function addUser(Request $request)
+    {
+        $token = $request->headers->get('x-token');
+        $authEmail = $this->firebaseService->getAuthorizedEmail($token);
+
+        if(is_null($authEmail)) {
+            return new View("user not registered with firebase", Response::HTTP_NOT_FOUND);
+        }
+
+        //TODO handle admin requests?
+        //TODO validate!
+        //TODO make user email unique in DB
+
+        $requestArray = current($request->request->get('data'));
+        $user = new UserEntity(
+            $requestArray['firstName'],
+            $requestArray['lastName'],
+            (new EmberDate($requestArray['dob']))->getPhpDate(),
+            $requestArray['shirtSize'],
+            $requestArray['gender'],
+            $requestArray['isKeeper'],
+            $requestArray['isOffense'],
+            $requestArray['isDefense'],
+            $requestArray['phone'],
+            $requestArray['emergencyContact'],
+            $requestArray['emergencyContactPhone'],
+            'player', //can ONLY add as player
+            $authEmail //only use authorized email from firebase
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        $this->firebaseService->updateCache($token, $user);
+
+        return new JsonApiResponse($user, 'user');
+    }
 }

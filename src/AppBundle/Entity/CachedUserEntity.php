@@ -16,13 +16,15 @@ class CachedUserEntity
      * CachedUserEntity constructor.
      * @param $token
      * @param $uid
-     * @param $user
+     * @param $email
+     * @param $userId
      */
-    public function __construct($token, $uid, $user)
+    public function __construct($token = null, $uid = null, $email = null, $userId = null)
     {
         $this->token = $token;
         $this->uid = $uid;
-        $this->user = $user;
+        $this->email = $email;
+        $this->userId = $userId;
         $this->cacheTime = date_create();
     }
 
@@ -35,23 +37,26 @@ class CachedUserEntity
      */
     protected $id;
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=255)
      */
     protected $token;
     /**
-     * @ORM\Column(type="string", length=55)
+     * @ORM\Column(type="string", length=100)
      */
     protected $uid;
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    protected $email;
     /**
      * @ORM\Column(type="datetime")
      */
     protected $cacheTime = "";
 
     /**
-     * @ORM\ManyToOne(targetEntity="UserEntity")
-     * @ORM\JoinColumn(name="cachedUser_id", referencedColumnName="id")
+     * @ORM\Column(type="integer", nullable=true)
      */
-    protected $user;
+    protected $userId;
 
 
 
@@ -101,6 +106,22 @@ class CachedUserEntity
     /**
      * @return mixed
      */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+    /**
+     * @param mixed $email
+     * @return CachedUserEntity
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+        return $this;
+    }
+    /**
+     * @return mixed
+     */
     public function getCacheTime()
     {
         return $this->cacheTime;
@@ -115,16 +136,15 @@ class CachedUserEntity
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getUserId()
     {
-        return $this->user;
+        return $this->userId;
     }
     /**
-     * @param mixed $user
+     * @param mixed
      */
-    public function setUser($user)
+    public function setUserId($userId)
     {
-        $this->user = $user;
+        $this->userId = $userId;
     }
-
 }

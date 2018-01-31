@@ -6,98 +6,43 @@
  * Time: 8:19 PM
  */
 
-namespace AppBundle\Entity;
+namespace AppBundle\Model;
 
-use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="userSeasons")
- */
-class UserSeasonEntity
+class ResponseUserSeason
 {
-
-    /**
-     * @ORM\Id()
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
     protected $id;
-    /**
-     * @ORM\ManyToOne(targetEntity="UserEntity", inversedBy="seasons")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     */
-    protected $user;
-    /**
-     * @ORM\OneToOne(targetEntity="WaiverEntity", inversedBy="userSeason")
-     * @ORM\JoinColumn(name="waiver_id", referencedColumnName="id")
-     */
-    protected $waiver;
-    /**
-     * @ORM\Column(type="integer")
-     */
+    protected $userId;
+    protected $waiverId;
     protected $seasonId;
-    /**
-     * @ORM\Column(type="integer")
-     */
     protected $paymentId;
-    /**
-     * @ORM\Column(type="integer")
-     */
     protected $teamId;
-    /**
-     * @ORM\Column(type="boolean")
-     */
     protected $hasPaid = null;
-    /**
-     * @ORM\Column(type="boolean")
-     */
     protected $hasWaiver = null;
-    /**
-     * @ORM\Column(type="boolean")
-     */
     protected $hasTeam = null;
-    /**
-     * @ORM\Column(type="datetime")
-     */
     protected $systemLoadDate = null;
-    /**
-     * @ORM\Column(type="datetime")
-     */
     protected $systemUpdateDate = null;
 
-    /**
-     * UserSeasonEntity constructor.
-     * @param $id
-     * @param $user
-     * @param $waiver
-     * @param $seasonId
-     * @param $paymentId
-     * @param $teamId
-     * @param $hasPaid
-     * @param $hasWaiver
-     * @param $hasTeam
-     */
-    public function __construct(
-        $user,
-        $waiver,
-        $seasonId,
-        $paymentId,
-        $teamId,
-        $hasPaid = false,
-        $hasWaiver = false,
-        $hasTeam = false)
+
+    public function __construct($userSeasonEntity = null)
     {
-        $this->user = $user;
-        $this->waiver = $waiver;
-        $this->seasonId = $seasonId;
-        $this->paymentId = $paymentId;
-        $this->teamId = $teamId;
-        $this->hasPaid = $hasPaid;
-        $this->hasWaiver = $hasWaiver;
-        $this->hasTeam = $hasTeam;
-        $this->systemLoadDate = date_create();
-        $this->systemUpdateDate = date_create();
+        if(!is_null($userSeasonEntity)) {
+            $this->id = $userSeasonEntity->getId();
+            if (!is_null($userSeasonEntity->getUser())) {
+                $this->userId = $userSeasonEntity->getUser()->getId();
+            }
+            if (!is_null($userSeasonEntity->getWaiver())) {
+                $this->waiverId = $userSeasonEntity->getWaiver()->getId();
+            }
+            $this->seasonId = $userSeasonEntity->getSeasonId();
+            $this->paymentId = $userSeasonEntity->getPaymentId();
+            $this->teamId = $userSeasonEntity->getTeamId();
+            $this->hasPaid = $userSeasonEntity->getHasPaid();
+            $this->hasWaiver = $userSeasonEntity->getHasWaiver();
+            $this->hasTeam = $userSeasonEntity->getHasTeam();
+            $this->systemLoadDate = $userSeasonEntity->getSystemLoadDate();
+            $this->systemUpdateDate = $userSeasonEntity->getSystemUpdateDate();
+        }
     }
 
 
@@ -112,7 +57,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $id
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setId($id)
     {
@@ -120,35 +65,33 @@ class UserSeasonEntity
         return $this;
     }
     /**
+     * @return string
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+    /**
+     * @param string $userId
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
+    }
+    /**
      * @return mixed
      */
-    public function getUser()
+    public function getWaiverId()
     {
-        return $this->user;
+        return $this->waiverId;
     }
     /**
-     * @param mixed $user
-     * @return UserSeasonEntity
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-        return $this;
-    }
-    /**
+     * @param mixed $waiverId
      * @return mixed
      */
-    public function getWaiver()
+    public function setWaiverId($waiverId)
     {
-        return $this->waiver;
-    }
-    /**
-     * @param mixed $waiver
-     * @return UserSeasonEntity
-     */
-    public function setWaiver($waiver)
-    {
-        $this->waiver = $waiver;
+        $this->waiverId = $waiverId;
         return $this;
     }
     /**
@@ -160,7 +103,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $seasonId
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setSeasonId($seasonId)
     {
@@ -176,7 +119,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $paymentId
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setPaymentId($paymentId)
     {
@@ -192,7 +135,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $teamId
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setTeamId($teamId)
     {
@@ -208,7 +151,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $hasPaid
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setHasPaid($hasPaid)
     {
@@ -224,7 +167,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $hasWaiver
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setHasWaiver($hasWaiver)
     {
@@ -240,7 +183,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $hasTeam
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setHasTeam($hasTeam)
     {
@@ -256,7 +199,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $systemLoadDate
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setSystemLoadDate($systemLoadDate)
     {
@@ -272,7 +215,7 @@ class UserSeasonEntity
     }
     /**
      * @param mixed $systemUpdateDate
-     * @return UserSeasonEntity
+     * @return mixed
      */
     public function setSystemUpdateDate($systemUpdateDate)
     {

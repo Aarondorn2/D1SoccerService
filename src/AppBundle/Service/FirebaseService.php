@@ -9,6 +9,9 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Entity\UserEntity;
+use AppBundle\Model\UserType;
+
 class FirebaseService
 {
     private $userCache;
@@ -18,22 +21,49 @@ class FirebaseService
         $this->userCache = $userCache;
     }
 
-
-    public function getAuthorizedUser($token) {
+    //returns empty if none
+    public function getAuthorizedUser($token)
+    {
         $cache = $this->userCache;
 
-        $cachedUser = $cache->findUser($token);
+        $cachedUser = $cache->findCachedUser($token);
         if (is_null($cachedUser)) { //check cache first
             //attempt to add user
-            $cachedUser = $cache->addUser($token);
+            $cachedUser = $cache->buildCachedUser($token);
         }
 
-        return $cachedUser->getUser();
+        return $cache->getUserEntity($cachedUser);
     }
 
-    public function isAuthorized($token, $accessLevel, $doctrine)
+    public function isAuthorized($token, $accessLevel)
     {
+        $user = $this->getAuthorizedUser($token);
 
+        $userType = $user->getUserType();
+        $hierarchy = UserType::getHierarchy();
+
+        if(!array_key_exists($accessLevel, $hierarchy) || !array_key_exists($userType, $hierarchy)) {
+            return false;
+        }
+
+        return $hierarchy[$userType] >= $hierarchy[$accessLevel];
     }
 
+    public function getAuthorizedEmail($token)
+    {
+        $cache = $this->userCache;
+
+        $cachedUser = $cache->findCachedUser($token);
+        if (is_null($cachedUser)) { //check cache first
+            //attempt to add user
+            $cachedUser = $cache->buildCachedUser($token);
+        }
+
+        return is_null($cachedUser) ? null : $cachedUser->getEmail();
+    }
+
+    public function updateCache($token, $user)
+    {
+        $this->userCache->updateCachedUser($token, $user);
+    }
 }

@@ -9,6 +9,7 @@
 namespace AppBundle\Service;
 
 use AppBundle\Entity\CachedUserEntity;
+use AppBundle\Entity\UserEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Kreait\Firebase\Exception\Auth\InvalidIdToken;
 use Kreait\Firebase\Factory;
@@ -30,7 +31,7 @@ class UserCacheService
     }
 
 
-    public function findUser($token)
+    public function findCachedUser($token)
     {
         $cachedUsers = $this->entityManager->getRepository('AppBundle:CachedUserEntity')->findBy(array('token' => hash('sha256', $token)));
         $cachedUser = null;
@@ -38,10 +39,10 @@ class UserCacheService
             $cachedUser = $user;
         }
 
-        return is_null($cachedUser) ? null : $cachedUser;
+        return $cachedUser;
     }
 
-    public function addUser($token)
+    public function buildCachedUser($token)
     {
         try {
             //load auth and build firebase
@@ -71,21 +72,44 @@ class UserCacheService
             foreach ($users as $user) {
                 $userEntity = $user;
             }
+            //user may be empty
+            $userId = is_null($userEntity) ? null : $userEntity->getId();
 
-            if (!is_null($userEntity)) {
-                //buildCachedUserEntity and persist
-                $cachedUser = new CachedUserEntity(hash('sha256', $token), $verifiedUid, $userEntity);
-                $this->entityManager->persist($cachedUser);
-                $this->entityManager->flush();
+            //buildCachedUserEntity and persist
+            $cachedUser = new CachedUserEntity(hash('sha256', $token), $verifiedUid, $email, $userId);
+            $this->entityManager->persist($cachedUser);
+            $this->entityManager->flush();
 
-                return $cachedUser;
-            }
+            return $cachedUser;
 
-            return null;
         } catch (InvalidIdToken $e) {
-            return "error";
+            return null;
         }
 
+    }
+
+    public function updateCachedUser($token, $user) {
+        $cachedUsers = $this->entityManager->getRepository('AppBundle:CachedUserEntity')->findBy(array('token' => hash('sha256', $token)));
+        $cachedUser = null;
+        foreach($cachedUsers as $x) {
+            $cachedUser = $x;
+        }
+
+        if (!is_null($cachedUser)) {
+            $cachedUser->setUserId($user->getId());
+            $this->entityManager->persist($cachedUser);
+            $this->entityManager->flush();
+        }
+    }
+
+    public function getUserEntity($cachedUser) {
+        $user = null;
+
+        if (!is_null($cachedUser) && !is_null($cachedUser->getUserId())) {
+            $user = $this->entityManager->getRepository('AppBundle:UserEntity')->find($cachedUser->getUserId());
+        }
+
+        return is_null($user) ? new UserEntity() : $user;
     }
 
 }

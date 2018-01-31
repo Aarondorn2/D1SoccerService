@@ -76,7 +76,7 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     /**
      * @ORM\Column(type="string", length=255)
      */
-    protected $email;
+    protected $email = null;
     /**
      * @ORM\Column(type="datetime")
      */
@@ -92,6 +92,61 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     protected $seasons;
 
 
+    /**
+     * UserEntity constructor.
+     * @param $firstName
+     * @param $lastName
+     * @param string $dob
+     * @param string $shirtSize
+     * @param string $gender
+     * @param bool $isKeeper
+     * @param bool $isOffense
+     * @param bool $isDefense
+     * @param $phone
+     * @param $emergencyContact
+     * @param $emergencyContactPhone
+     * @param $userType
+     * @param null $email
+     */
+    public function __construct(
+        $firstName = '',
+        $lastName = '',
+        $dob = '',
+        $shirtSize = '',
+        $gender = '',
+        $isKeeper = false,
+        $isOffense = false,
+        $isDefense = false,
+        $phone = '',
+        $emergencyContact = '',
+        $emergencyContactPhone = '',
+        $userType = '',
+        $email = '')
+    {
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->dob = $dob;
+        $this->shirtSize = $shirtSize;
+        $this->gender = $gender;
+        $this->isKeeper = $isKeeper;
+        $this->isOffense = $isOffense;
+        $this->isDefense = $isDefense;
+        $this->phone = $phone;
+        $this->emergencyContact = $emergencyContact;
+        $this->emergencyContactPhone = $emergencyContactPhone;
+        $this->userType = $userType;
+        $this->email = $email;
+        $this->systemLoadDate = date_create();
+        $this->systemUpdateDate = date_create();
+    }
+
+
+
+    //CUSTOM GETTERS/SETTERS
+    public function getFullName()
+    {
+        return $this->firstName . " " . $this->lastName;
+    }
 
     //GETTERS AND SETTERS
     /**
@@ -101,7 +156,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->id;
     }
-
     /**
      * @param mixed $id
      * @return UserEntity
@@ -111,7 +165,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->id = $id;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -119,7 +172,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->firstName;
     }
-
     /**
      * @param mixed $firstName
      * @return UserEntity
@@ -129,7 +181,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->firstName = $firstName;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -137,7 +188,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->lastName;
     }
-
     /**
      * @param mixed $lastName
      * @return UserEntity
@@ -147,7 +197,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->lastName = $lastName;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -155,7 +204,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->dob;
     }
-
     /**
      * @param mixed $dob
      * @return UserEntity
@@ -165,7 +213,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->dob = $dob;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -173,7 +220,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->shirtSize;
     }
-
     /**
      * @param mixed $shirtSize
      * @return UserEntity
@@ -183,7 +229,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->shirtSize = $shirtSize;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -191,7 +236,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->gender;
     }
-
     /**
      * @param mixed $gender
      * @return UserEntity
@@ -201,7 +245,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->gender = $gender;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -209,7 +252,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->isKeeper;
     }
-
     /**
      * @param mixed $isKeeper
      * @return UserEntity
@@ -219,7 +261,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->isKeeper = $isKeeper;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -227,7 +268,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->isOffense;
     }
-
     /**
      * @param mixed $isOffense
      * @return UserEntity
@@ -237,7 +277,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->isOffense = $isOffense;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -245,7 +284,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->isDefense;
     }
-
     /**
      * @param mixed $isDefense
      * @return UserEntity
@@ -255,7 +293,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->isDefense = $isDefense;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -263,7 +300,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->phone;
     }
-
     /**
      * @param mixed $phone
      * @return UserEntity
@@ -273,7 +309,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->phone = $phone;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -281,7 +316,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->emergencyContact;
     }
-
     /**
      * @param mixed $emergencyContact
      * @return UserEntity
@@ -291,7 +325,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->emergencyContact = $emergencyContact;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -299,7 +332,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->emergencyContactPhone;
     }
-
     /**
      * @param mixed $emergencyContactPhone
      * @return UserEntity
@@ -309,7 +341,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->emergencyContactPhone = $emergencyContactPhone;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -317,7 +348,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->userType;
     }
-
     /**
      * @param mixed $userType
      * @return UserEntity
@@ -327,7 +357,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->userType = $userType;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -335,7 +364,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->email;
     }
-
     /**
      * @param mixed $email
      * @return UserEntity
@@ -345,7 +373,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->email = $email;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -353,7 +380,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->systemLoadDate;
     }
-
     /**
      * @param mixed $systemLoadDate
      * @return UserEntity
@@ -363,7 +389,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->systemLoadDate = $systemLoadDate;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -371,7 +396,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->systemUpdateDate;
     }
-
     /**
      * @param mixed $systemUpdateDate
      * @return UserEntity
@@ -381,7 +405,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->systemUpdateDate = $systemUpdateDate;
         return $this;
     }
-
     /**
      * @return mixed
      */
@@ -389,7 +412,6 @@ class UserEntity implements AdvancedUserInterface, \Serializable
     {
         return $this->seasons;
     }
-
     /**
      * @param mixed $seasons
      * @return UserEntity
@@ -399,7 +421,13 @@ class UserEntity implements AdvancedUserInterface, \Serializable
         $this->seasons = $seasons;
         return $this;
     }
+    public function addSeason(UserSeasonEntity $userSeason)
+    {
+        $userSeason->setUser($this);
+        $this->seasons[] = $userSeason;
 
+        return $this;
+    }
 
 
 
