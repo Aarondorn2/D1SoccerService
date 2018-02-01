@@ -24,7 +24,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\View\View;
-use AppBundle\Service\FirebaseService2;
 use FOS\RestBundle\Request\ParamFetcher;
 use FOS\RestBundle\Controller\Annotations\QueryParam;
 
@@ -42,7 +41,6 @@ class UserSeasonController extends FOSRestController
 
     /**
      * @Rest\Get("/user-seasons/{id}")
-     * @Rest\QueryParam(name="filter")
      */
     public function getUserSeason($id, Request $request)
     {
@@ -66,7 +64,6 @@ class UserSeasonController extends FOSRestController
 
     /**
      * @Rest\Get("/user-seasons")
-     * @Rest\QueryParam(name="filter")
      */
     public function getUserSeasons(Request $request)
     {
@@ -116,4 +113,32 @@ class UserSeasonController extends FOSRestController
 
         return new JsonApiResponse(new ResponseUserSeason($userSeason), 'userSeason');
     }
+
+    /**
+     * @Rest\Patch("/user-seasons/{id}")
+     */
+    public function updateUserSeason($id, Request $request)
+    {
+        //get user
+        $authUser = $this->firebaseService->getAuthorizedUser($request->headers->get('x-token'));
+        if (empty($authUser->getId())) {
+            return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
+        }
+
+        $teamId = $request->request->get('data')['attributes']['teamId'];
+
+        $userSeason = null;
+        //loop through seasons looking for the right one
+        foreach ($authUser->getSeasons() as $uSeason) {
+            if ($uSeason->getId() == $id) {
+                $userSeason = $uSeason;
+            }
+        }
+        $userSeason->setHasTeam(true);
+        $userSeason->setTeamId($teamId);
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonApiResponse(new ResponseUserSeason($userSeason), 'userSeasons');
+    }
+
 }

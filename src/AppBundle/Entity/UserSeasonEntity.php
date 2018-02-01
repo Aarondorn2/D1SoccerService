@@ -38,11 +38,11 @@ class UserSeasonEntity
      */
     protected $seasonId;
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $paymentId;
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     protected $teamId;
     /**
