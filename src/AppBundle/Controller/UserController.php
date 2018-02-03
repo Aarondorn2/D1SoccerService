@@ -67,11 +67,12 @@ class UserController extends FOSRestController
         if ($paramFetcher->get('orderBy') === "email") {
             if ($authUser->getEmail() == $paramFetcher->get('equalTo')) {
                 $users[] = new ResponseUser($authUser);
-            } else { //TODO if admin, allow look any email
-
-//                $users = $this->getDoctrine()->getRepository('AppBundle:UserEntity')->findBy(array('email' => $paramFetcher->get('equalTo')));
             }
-
+        } else if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
+            $userEntities = $this->getDoctrine()->getRepository('AppBundle:UserEntity')->findAll();
+            foreach ($userEntities as $userEntity) {
+                $users[] = new ResponseUser($userEntity);
+            }
         }
 
         return new JsonApiArrayResponse($users, 'users');

@@ -35,10 +35,8 @@ class FirebaseService
         return $cache->getUserEntity($cachedUser);
     }
 
-    public function isAuthorized($token, $accessLevel)
+    public function isAuthorized($user, $accessLevel)
     {
-        $user = $this->getAuthorizedUser($token);
-
         $userType = $user->getUserType();
         $hierarchy = UserType::getHierarchy();
 

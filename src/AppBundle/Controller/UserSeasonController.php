@@ -13,6 +13,7 @@ use AppBundle\Entity\UserEntity;
 use AppBundle\Entity\UserSeasonEntity;
 use AppBundle\Model\JsonApiArrayResponse;
 use AppBundle\Model\JsonApiResponse;
+use AppBundle\Model\ResponseUserSeasonAdmin;
 use AppBundle\Model\UserType;
 use AppBundle\Service\FirebaseService;
 use AppBundle\Utility\EmberDate;
@@ -64,8 +65,9 @@ class UserSeasonController extends FOSRestController
 
     /**
      * @Rest\Get("/user-seasons")
+     * @Rest\QueryParam(name="filter")
      */
-    public function getUserSeasons(Request $request)
+    public function getUserSeasons(ParamFetcher $paramFetcher, Request $request)
     {
         $currentUserSeasons = Array();
 
@@ -74,10 +76,22 @@ class UserSeasonController extends FOSRestController
         if (empty($authUser->getId())) {
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
         }
-
-        //loop through seasons adding to array
-        foreach ($authUser->getSeasons() as $uSeason) {
-            $currentUserSeasons[] = new ResponseUserSeason($uSeason);
+        if($paramFetcher->get('filter') == 'admin') {
+            if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
+                //TODO by season
+                $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findAll();
+                $teams = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
+                foreach ($userSeasons as $uSeason) {
+                    $currentUserSeasons[] = new ResponseUserSeasonAdmin($uSeason, $teams);
+                }
+            } else {
+                return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
+            }
+        } else {
+            //loop through seasons adding to array
+            foreach ($authUser->getSeasons() as $uSeason) {
+                $currentUserSeasons[] = new ResponseUserSeason($uSeason);
+            }
         }
 
         return new JsonApiArrayResponse($currentUserSeasons, 'userSeasons');
