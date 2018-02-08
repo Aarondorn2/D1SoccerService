@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="AppBundle\Entity\CachedUserRepository")
  * @ORM\Table(name="cachedUsers",indexes={@ORM\Index(name="indx_token", columns={"token"})})
  */
 class CachedUserEntity

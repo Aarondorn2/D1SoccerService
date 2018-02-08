@@ -33,7 +33,7 @@ class UserCacheService
 
     public function findCachedUser($token)
     {
-        $cachedUsers = $this->entityManager->getRepository('AppBundle:CachedUserEntity')->findBy(array('token' => hash('sha256', $token)));
+        $cachedUsers = $this->entityManager->getRepository('AppBundle:CachedUserEntity')->findAndUpdate(hash('sha256', $token));
         $cachedUser = null;
         foreach($cachedUsers as $user) {
             $cachedUser = $user;

@@ -139,17 +139,33 @@ class UserSeasonController extends FOSRestController
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
         }
 
-        $teamId = $request->request->get('data')['attributes']['teamId'];
+        $attributes = $request->request->get('data')['attributes'];
+        //if admin, do admin things
+        if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
+            $team = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findOneBy(array('teamName' => $attributes['teamName']));
 
-        $userSeason = null;
-        //loop through seasons looking for the right one
-        foreach ($authUser->getSeasons() as $uSeason) {
-            if ($uSeason->getId() == $id) {
-                $userSeason = $uSeason;
+            $userSeason = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->find($id);
+            $userSeason->setHasPaid($attributes['hasPaid']);
+            $userSeason->setHasTeam($attributes['hasTeam']);
+            $userSeason->setSystemLoadDate((new EmberDate($attributes['systemLoadDate']))->getPhpDate());
+            $userSeason->setSystemUpdateDate(new \DateTime());
+            if(!is_null($team)) {
+                $userSeason->setTeamId($team->getId());
             }
+
+        } else {
+            $teamId = $attributes['teamId'];
+
+            $userSeason = null;
+            //loop through seasons looking for the right one
+            foreach ($authUser->getSeasons() as $uSeason) {
+                if ($uSeason->getId() == $id) {
+                    $userSeason = $uSeason;
+                }
+            }
+            $userSeason->setHasTeam(true);
+            $userSeason->setTeamId($teamId);
         }
-        $userSeason->setHasTeam(true);
-        $userSeason->setTeamId($teamId);
         $this->getDoctrine()->getManager()->flush();
 
         return new JsonApiResponse(new ResponseUserSeason($userSeason), 'userSeasons');
