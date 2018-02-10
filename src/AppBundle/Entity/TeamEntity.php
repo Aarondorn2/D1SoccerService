@@ -24,6 +24,10 @@ class TeamEntity
      */
     protected $id;
     /**
+     * @ORM\Column(type="integer")
+     */
+    protected $captainId;
+    /**
      * @ORM\Column(type="string", length=255)
      */
     protected $captainFirstName;
@@ -88,6 +92,20 @@ class TeamEntity
     public function setId($id)
     {
         $this->id = $id;
+    }
+    /**
+     * @return mixed
+     */
+    public function getCaptainId()
+    {
+        return $this->captainId;
+    }
+    /**
+     * @param mixed $captainId
+     */
+    public function setCaptainId($captainId)
+    {
+        $this->captainId = $captainId;
     }
     /**
      * @return mixed

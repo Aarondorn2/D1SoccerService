@@ -61,7 +61,7 @@ class UserController extends FOSRestController
     public function getUsersByQuery(ParamFetcher $paramFetcher, Request $request)
     {
         $authUser = $this->firebaseService->getAuthorizedUser($request->headers->get('x-token'));
-        
+
         $users = Array();
 
         if ($paramFetcher->get('orderBy') === "email") {
