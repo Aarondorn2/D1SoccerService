@@ -45,45 +45,50 @@ class CaptainRosterController extends FOSRestController
     public function getRoster(Request $request)
     {
         $rosters = Array();
-
+        $userSeasons = Array();
+        $teams = Array();
         //get user
         $authUser = $this->firebaseService->getAuthorizedUser($request->headers->get('x-token'));
         if (empty($authUser->getId())) {
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
         }
-
-        if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_CAPTAIN)) {
+        if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
+            $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findAll();
+            $teamEnts = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
+            foreach ($teamEnts as $team) {
+                $teams[$team->getId()] = $team->getTeamName();
+            }
+        } else if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_CAPTAIN)) {
             //TODO by season
             $team = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findOneBy(array('captainId' => $authUser->getId()));
             if(!is_null($team)) {
                 $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->getTeamAndFreeAgents($team->getId());
-
-                foreach ($userSeasons as $uSeason) {
-                    $user = $uSeason->getUser();
-                    $rcr = new ResponseCaptainRoster(
-                        $uSeason->getId(),
-                        $user->getFullName(),
-                        $team->getId(),
-                        $team->getTeamName(),
-                        $uSeason->getHasPaid(),
-                        $uSeason->getHasWaiver(),
-                        $uSeason->getHasTeam(),
-                        $user->getShirtSize(),
-                        $user->getGender(),
-                        $user->getisKeeper(),
-                        $user->getisOffense(),
-                        $user->getisDefense()
-                    );
-
-                    if(is_null($uSeason->getTeamId()) || $uSeason->getTeamId() == 999) {
-                        $rcr->setTeamId(999);
-                        $rcr->setTeamName("FREE AGENT");
-                    }
-                    $rosters[] = $rcr;
-                }
+                $teams[$team->getId()] = $team->getTeamName();
+                $teams[999] = "FREE AGENTS";
             }
         } else {
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
+        }
+
+        foreach ($userSeasons as $uSeason) {
+            $user = $uSeason->getUser();
+            $teamId = empty($uSeason->getTeamId()) ? 999 : $uSeason->getTeamId();
+            $rcr = new ResponseCaptainRoster(
+                $uSeason->getId(),
+                $user->getFullName(),
+                $teamId,
+                $uSeason->getTeamId() == 999 ? "FREE AGENT" : $teams[$teamId],
+                $uSeason->getHasPaid(),
+                $uSeason->getHasWaiver(),
+                $uSeason->getHasTeam(),
+                $user->getShirtSize(),
+                $user->getGender(),
+                $user->getisKeeper(),
+                $user->getisOffense(),
+                $user->getisDefense()
+            );
+
+            $rosters[] = $rcr;
         }
 
         return new JsonApiArrayResponse($rosters, 'captainRosters');
