@@ -54,8 +54,8 @@ class CaptainRosterController extends FOSRestController
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
         }
         if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
-            $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findAll();
-            $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->findAll();
+            $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findBy(array('seasonId' => 2));
+            $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->findBy(array('seasonId' => 2));
             $teamEnts = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
             foreach ($teamEnts as $team) {
                 $teams[$team->getId()] = $team->getTeamName();
@@ -91,13 +91,13 @@ class CaptainRosterController extends FOSRestController
                 $user->getisDefense()
             );
 
-            $rosters[] = $rcr;
+            array_push($rosters, $rcr);
         }
 
         foreach ($manualUserSeasons as $uSeason) {
             $teamId = empty($uSeason->getTeamId()) ? 999 : $uSeason->getTeamId();
             $rcr = new ResponseCaptainRoster(
-                $uSeason->getId(),
+                "M".$uSeason->getId(),
                 $uSeason->getUserName(),
                 $teamId,
                 $uSeason->getTeamId() == 999 ? "FREE AGENT" : $teams[$teamId],
