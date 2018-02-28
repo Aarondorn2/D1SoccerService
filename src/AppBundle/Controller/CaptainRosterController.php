@@ -110,8 +110,7 @@ class CaptainRosterController extends FOSRestController
                 false,
                 false
             );
-
-            $rosters[] = $rcr;
+            array_push($rosters, $rcr);
         }
         return new JsonApiArrayResponse($rosters, 'captainRosters');
     }
