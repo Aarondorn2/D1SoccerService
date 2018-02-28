@@ -46,6 +46,7 @@ class CaptainRosterController extends FOSRestController
     {
         $rosters = Array();
         $userSeasons = Array();
+        $manualUserSeasons = Array();
         $teams = Array();
         //get user
         $authUser = $this->firebaseService->getAuthorizedUser($request->headers->get('x-token'));
@@ -54,6 +55,7 @@ class CaptainRosterController extends FOSRestController
         }
         if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
             $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findAll();
+            $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->findAll();
             $teamEnts = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
             foreach ($teamEnts as $team) {
                 $teams[$team->getId()] = $team->getTeamName();
@@ -63,6 +65,7 @@ class CaptainRosterController extends FOSRestController
             $team = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findOneBy(array('captainId' => $authUser->getId()));
             if(!is_null($team)) {
                 $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->getTeamAndFreeAgents($team->getId());
+                $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->getTeamAndFreeAgents($team->getId());
                 $teams[$team->getId()] = $team->getTeamName();
                 $teams[999] = "FREE AGENTS";
             }
@@ -91,6 +94,25 @@ class CaptainRosterController extends FOSRestController
             $rosters[] = $rcr;
         }
 
+        foreach ($manualUserSeasons as $uSeason) {
+            $teamId = empty($uSeason->getTeamId()) ? 999 : $uSeason->getTeamId();
+            $rcr = new ResponseCaptainRoster(
+                $uSeason->getId(),
+                $uSeason->getUserName(),
+                $teamId,
+                $uSeason->getTeamId() == 999 ? "FREE AGENT" : $teams[$teamId],
+                $uSeason->getHasPaid(),
+                $uSeason->getHasWaiver(),
+                $uSeason->getHasTeam(),
+                null,
+                null,
+                false,
+                false,
+                false
+            );
+
+            $rosters[] = $rcr;
+        }
         return new JsonApiArrayResponse($rosters, 'captainRosters');
     }
 
