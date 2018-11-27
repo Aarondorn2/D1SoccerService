@@ -79,7 +79,7 @@ class UserSeasonController extends FOSRestController
         if($paramFetcher->get('filter') == 'admin') {
             if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
                 //TODO by season
-                $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findBy(array('seasonId' => 3));
+                $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findBy(array('seasonId' => 4));
                 $teams = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
                 foreach ($userSeasons as $uSeason) {
                     $currentUserSeasons[] = new ResponseUserSeasonAdmin($uSeason, $teams);
