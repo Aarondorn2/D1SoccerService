@@ -9,7 +9,7 @@ class UserSeasonRepository extends EntityRepository {
     {
         return $this->getEntityManager()
             ->createQuery(
-                'SELECT u FROM AppBundle:UserSeasonEntity u WHERE (u.teamId is null or u.teamId in(999, :teamId)) and u.seasonId = 4'
+                'SELECT u FROM AppBundle:UserSeasonEntity u WHERE (u.teamId is null or u.teamId in(999, :teamId)) and u.seasonId = 5'
             )->setParameter('teamId', $teamId)->getResult();
     }
 
