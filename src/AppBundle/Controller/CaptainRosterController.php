@@ -54,8 +54,8 @@ class CaptainRosterController extends FOSRestController
             return new View("Access Denied for this user", Response::HTTP_FORBIDDEN);
         }
         if($this->firebaseService->isAuthorized($authUser, UserType::$USER_TYPE_ADMIN)) {
-            $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findBy(array('seasonId' => 7));
-            $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->findBy(array('seasonId' => 7));
+            $userSeasons = $this->getDoctrine()->getRepository('AppBundle:UserSeasonEntity')->findBy(array('seasonId' => 8));
+            $manualUserSeasons = $this->getDoctrine()->getRepository('AppBundle:ManualUserSeasonEntity')->findBy(array('seasonId' => 8));
             $teamEnts = $this->getDoctrine()->getRepository('AppBundle:TeamEntity')->findAll();
             foreach ($teamEnts as $team) {
                 $teams[$team->getId()] = $team->getTeamName();
